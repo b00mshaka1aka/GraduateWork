@@ -1,3 +1,3 @@
 # GraduateWork
 
-Topic: "Develop algorithm for finding objects on underlying surface in point cloud"
+Topic: "Development of an algorithm for searching for objects on the underlying surface in a point cloud"
