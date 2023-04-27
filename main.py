@@ -7,11 +7,9 @@ import os
 import sys
 
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QApplication, QMessageBox, QTabWidget
+from PySide6.QtWidgets import QApplication, QMessageBox, QMainWindow
 
-from bargraph import BarGraph
 from scattergraph import ScatterGraph
-from surfacegraph import SurfaceGraph
 
 if __name__ == "__main__":
     os.environ["QSG_RHI_BACKEND"] = "opengl"
@@ -19,10 +17,10 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     # Create a tab widget for creating own tabs for Q3DBars, Q3DScatter, and Q3DSurface
-    tabWidget = QTabWidget()
-    tabWidget.setWindowTitle("Graph Gallery")
+    main_window = QMainWindow()
+    main_window.setWindowTitle("CloudView")
 
-    screen_size = tabWidget.screen().size()
+    screen_size = main_window.screen().size()
     minimum_graph_size = QSize(screen_size.width() / 2, screen_size.height() / 1.75)
 
     scatter = ScatterGraph()
@@ -32,7 +30,7 @@ if __name__ == "__main__":
         sys.exit(-1)
 
     # Add scatter widget
-    tabWidget.addTab(scatter.scatterWidget(), "Scatter Graph")
+    main_window.setCentralWidget(scatter.scatterWidget())
 
-    tabWidget.show()
+    main_window.show()
     sys.exit(app.exec())

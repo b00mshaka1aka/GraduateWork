@@ -4,7 +4,7 @@
 from PySide6.QtCore import QObject, QSize, Qt
 from PySide6.QtWidgets import (QCheckBox, QComboBox, QCommandLinkButton,
                                QLabel, QHBoxLayout, QSizePolicy,
-                               QVBoxLayout, QWidget, )
+                               QVBoxLayout, QWidget, QMessageBox)
 from PySide6.QtDataVisualization import (QAbstract3DSeries, Q3DScatter)
 
 from scatterdatamodifier import ScatterDataModifier
@@ -34,39 +34,31 @@ class ScatterGraph(QObject):
         vLayout = QVBoxLayout()
         hLayout.addLayout(vLayout)
 
-        cameraButton = QCommandLinkButton(self._scatterWidget)
-        cameraButton.setText("Change camera preset")
-        cameraButton.setDescription("Switch between a number of preset camera positions")
-        cameraButton.setIconSize(QSize(0, 0))
-
-        itemCountButton = QCommandLinkButton(self._scatterWidget)
-        itemCountButton.setText("Toggle item count")
-        itemCountButton.setDescription("Switch between 900 and 10000 data points")
-        itemCountButton.setIconSize(QSize(0, 0))
-
-        rangeButton = QCommandLinkButton(self._scatterWidget)
-        rangeButton.setText("Toggle axis ranges")
-        rangeButton.setDescription("Switch between automatic axis ranges and preset ranges")
-        rangeButton.setIconSize(QSize(0, 0))
-
         backgroundCheckBox = QCheckBox(self._scatterWidget)
-        backgroundCheckBox.setText("Show background")
+        backgroundCheckBox.setText("Задний фон")
         backgroundCheckBox.setChecked(True)
 
         gridCheckBox = QCheckBox(self._scatterWidget)
-        gridCheckBox.setText("Show grid")
+        gridCheckBox.setText("Сетка")
         gridCheckBox.setChecked(True)
 
         smoothCheckBox = QCheckBox(self._scatterWidget)
-        smoothCheckBox.setText("Smooth dots")
+        smoothCheckBox.setText("Качественные текстуры")
         smoothCheckBox.setChecked(True)
 
         itemStyleList = QComboBox(self._scatterWidget)
-        itemStyleList.addItem("Sphere", QAbstract3DSeries.MeshSphere)
-        itemStyleList.addItem("Cube", QAbstract3DSeries.MeshCube)
-        itemStyleList.addItem("Minimal", QAbstract3DSeries.MeshMinimal)
-        itemStyleList.addItem("Point", QAbstract3DSeries.MeshPoint)
+        itemStyleList.addItem("Сфера", QAbstract3DSeries.MeshSphere)
+        itemStyleList.addItem("Куб", QAbstract3DSeries.MeshCube)
+        itemStyleList.addItem("Минимал", QAbstract3DSeries.MeshMinimal)
+        itemStyleList.addItem("Точка", QAbstract3DSeries.MeshPoint)
         itemStyleList.setCurrentIndex(0)
+
+        d_list = QComboBox(self._scatterWidget)
+        d_list.addItem("0.125", 0.125)
+        d_list.addItem("0.25", 0.25)
+        d_list.addItem("0.5", 0.5)
+        d_list.addItem("1", 1.)
+        d_list.setCurrentIndex(1)
 
         themeList = QComboBox(self._scatterWidget)
         themeList.addItem("Qt")
@@ -80,37 +72,34 @@ class ScatterGraph(QObject):
         themeList.setCurrentIndex(3)
 
         shadowQuality = QComboBox(self._scatterWidget)
-        shadowQuality.addItem("None")
-        shadowQuality.addItem("Low")
-        shadowQuality.addItem("Medium")
-        shadowQuality.addItem("High")
-        shadowQuality.addItem("Low Soft")
-        shadowQuality.addItem("Medium Soft")
-        shadowQuality.addItem("High Soft")
+        shadowQuality.addItem("Отсутствует")
+        shadowQuality.addItem("Низкое")
+        shadowQuality.addItem("Среднее")
+        shadowQuality.addItem("Высокое")
+        shadowQuality.addItem("Низкое с сглаживанием")
+        shadowQuality.addItem("Среднее с сглаживанием")
+        shadowQuality.addItem("Высокое с сглаживанием")
         shadowQuality.setCurrentIndex(6)
 
-        vLayout.addWidget(cameraButton)
-        vLayout.addWidget(itemCountButton)
-        vLayout.addWidget(rangeButton)
         vLayout.addWidget(backgroundCheckBox)
         vLayout.addWidget(gridCheckBox)
         vLayout.addWidget(smoothCheckBox)
-        vLayout.addWidget(QLabel("Change dot style"))
+        vLayout.addWidget(QLabel("Коэффициент разбиения"))
+        vLayout.addWidget(d_list)
+        vLayout.addWidget(QLabel("Стиль вектора"))
         vLayout.addWidget(itemStyleList)
-        vLayout.addWidget(QLabel("Change theme"))
+        vLayout.addWidget(QLabel("Тема"))
         vLayout.addWidget(themeList)
-        vLayout.addWidget(QLabel("Adjust shadow quality"))
+        vLayout.addWidget(QLabel("Качество тени"))
         vLayout.addWidget(shadowQuality, 1, Qt.AlignTop)
 
         self._modifier = ScatterDataModifier(self._scatterGraph, self)
 
-        cameraButton.clicked.connect(self._modifier.changePresetCamera)
-        itemCountButton.clicked.connect(self._modifier.toggleItemCount)
-        rangeButton.clicked.connect(self._modifier.toggleRanges)
-
         backgroundCheckBox.stateChanged.connect(self._modifier.setBackgroundEnabled)
         gridCheckBox.stateChanged.connect(self._modifier.setGridEnabled)
         smoothCheckBox.stateChanged.connect(self._modifier.setSmoothDots)
+
+        d_list.currentIndexChanged.connect(self._modifier.change_d)
 
         self._modifier.backgroundEnabledChanged.connect(backgroundCheckBox.setChecked)
         self._modifier.gridEnabledChanged.connect(gridCheckBox.setChecked)

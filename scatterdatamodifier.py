@@ -5,6 +5,7 @@ from math import cos, degrees, sqrt
 from underlying_surface import CellDivision
 
 from PySide6.QtCore import QObject, Signal, Slot, Qt
+from PySide6.QtWidgets import QMessageBox
 from PySide6.QtGui import QVector3D
 from PySide6.QtDataVisualization import (QAbstract3DGraph, QAbstract3DSeries,
                                          QScatterDataItem, QScatterDataProxy,
@@ -36,7 +37,6 @@ LOWER_CURVE_DIVIDER = 0.75
 
 
 class ScatterDataModifier(QObject):
-
     backgroundEnabledChanged = Signal(bool)
     gridEnabledChanged = Signal(bool)
     shadowQualityChanged = Signal(int)
@@ -75,7 +75,7 @@ class ScatterDataModifier(QObject):
 
         self.addData()
 
-    def addData(self):
+    def addData(self, d=0.5):
         # Configure the axes according to the data
         self._graph.axisX().setTitle("X")
         self._graph.axisY().setTitle("Y")
@@ -83,8 +83,7 @@ class ScatterDataModifier(QObject):
 
         data_array = []
 
-        points = las_convert("wreck1.laz")
-        d = 0.5
+        points = las_convert("data/wreck1.laz")
 
         cell_division = CellDivision(points, d_x=d, d_y=d, d_z=d)
         mean_points = cell_division.get_mean_points()
@@ -93,6 +92,10 @@ class ScatterDataModifier(QObject):
             data_array.append(QScatterDataItem(QVector3D(x, y, z)))
 
         self._graph.seriesList()[0].dataProxy().resetArray(data_array)
+
+    @Slot(float)
+    def change_d(self, d):
+        self.addData(d)
 
     @Slot(int)
     def changeStyle(self, style):
